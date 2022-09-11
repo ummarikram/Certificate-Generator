@@ -3,7 +3,11 @@ import numpy as np
 import os
 import shutil
 import pandas as pd
+import smtplib
 from PIL import ImageFont,ImageDraw,Image
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
 
 # Coordinates for Student Name positioning, depends on certificate structure
 studentX_coordinate = 150
@@ -13,8 +17,37 @@ studentY_coordinate = 660
 directorX_coordinate = 150
 directorY_coordinate = 1120
 
+# Sender Credentials
+SenderEmail = "ummarikram@gmail.com"
+SenderPassword = "sawzupmnjzvjhwfd"
+
+# Email Server
+server = smtplib.SMTP('smtp.gmail.com', 587)
+
+def SendMail(ImgFileName, studentName, studentEmail):
+    with open(ImgFileName, 'rb') as f:
+        img_data = f.read()
+
+    msg = MIMEMultipart()
+    msg['Subject'] = 'INTELLIGENT NFTS E-CERTIFICATE'
+    msg['From'] = SenderEmail
+    msg['To'] = studentEmail
+
+    # Body
+    text = MIMEText("Dear {},\n\nThank you for joining our event. We hope you had a great time.\n\nHere is your digital certificate.\n\nRegards,\nTeam SPFC X IEEE".format(studentName))
+
+    # Body Attachment
+    msg.attach(text)
+
+    # Certificate Attachment
+    image = MIMEImage(img_data, name=os.path.basename(ImgFileName))
+    msg.attach(image)
+
+    # From, To, Msg
+    server.sendmail(SenderEmail, studentEmail, msg.as_string())
+
 # GENERTING CERTIFICATES
-def certificate_gen(name_ls):
+def certificate_gen(student_list):
 
     # Directory name where certificates will be stores
     folderName = 'certificates'
@@ -28,10 +61,17 @@ def certificate_gen(name_ls):
     # create folder
     os.mkdir(folderName)
 
-    for name in name_ls:
+    # Establishing Server Connection
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+
+    # Authenticate
+    server.login(SenderEmail, SenderPassword)
+
+    for [name, email] in student_list:
 
         template=cv2.imread('certificate.png')
-        
         template_conv = cv2.cvtColor(template,cv2.COLOR_BGR2RGB)
         arr_img= Image.fromarray(template_conv)
         var_draw=ImageDraw.Draw(arr_img)
@@ -45,7 +85,13 @@ def certificate_gen(name_ls):
 
         final_res=cv2.cvtColor(np.array(arr_img),cv2.COLOR_RGB2BGR) # RE-CONVERTING IMAGE FROM ARRAY INFO
         cv2.imwrite(os.path.join(folderName, "{}.png".format(name)), final_res) # TO SAVE THE FINAL OUTPUT
-        print("{}'s certificate generated".format(name))
+        print("{}'s certificate generated!".format(name))
+
+        SendMail(os.path.join(folderName, "{}.png".format(name)), name, email)
+        print("Email sent to {}!".format(name))
+    
+    # Terminate Server
+    server.quit()
 
       
 if __name__=="__main__":
@@ -53,10 +99,16 @@ if __name__=="__main__":
     # Read Names CSV
     try:
         df = pd.read_csv('names.csv')
-        name_ls = df['NAMES'].tolist()
+
+        names = df['NAMES'].tolist()
+
+        emails = df['EMAILS'].tolist()
+
+        student_list = zip(names, emails)
+
     except:
         print("File not found")
         exit()
     
-    certificate_gen(name_ls)
+    certificate_gen(student_list)
     
