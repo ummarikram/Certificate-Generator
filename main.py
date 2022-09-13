@@ -25,17 +25,21 @@ SenderPassword = "sawzupmnjzvjhwfd"
 # Email Server
 server = smtplib.SMTP('smtp.gmail.com', 587)
 
+# Email Body
+EmailSubject = 'INTELLIGENT NFTS E-CERTIFICATE'
+EmailBody = ""
+
 def SendMail(ImgFileName, studentName, studentEmail):
     with open(ImgFileName, 'rb') as f:
         img_data = f.read()
 
     msg = MIMEMultipart()
-    msg['Subject'] = 'INTELLIGENT NFTS E-CERTIFICATE'
+    msg['Subject'] = EmailSubject
     msg['From'] = SenderEmail
     msg['To'] = studentEmail
 
     # Body
-    text = MIMEText("Dear {},\n\nThank you for joining our event. We hope you had a great time.\n\nHere is your digital certificate.\n\nRegards,\nTeam SPFC X IEEE".format(studentName))
+    text = MIMEText(EmailBody.format(studentName))
 
     # Body Attachment
     msg.attach(text)
@@ -99,6 +103,7 @@ if __name__=="__main__":
 
     # Read Names CSV
     try:
+
         df = pd.read_csv('names.csv')
 
         names = df['NAMES'].tolist()
@@ -106,6 +111,9 @@ if __name__=="__main__":
         emails = df['EMAILS'].tolist()
 
         student_list = zip(names, emails)
+
+        with open('email.txt', 'r') as file:
+            EmailBody = file.read()
 
     except:
         print("File not found")
