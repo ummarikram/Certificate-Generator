@@ -87,8 +87,8 @@ def certificate_gen(student_list):
         cv2.imwrite(os.path.join(folderName, "{}.png".format(name)), final_res) # TO SAVE THE FINAL OUTPUT
         print("{}'s certificate generated!".format(name))
 
-        SendMail(os.path.join(folderName, "{}.png".format(name)), name, email)
-        print("Email sent to {}!".format(name))
+        # SendMail(os.path.join(folderName, "{}.png".format(name)), name, email)
+        # print("Email sent to {}!".format(name))
     
     # Terminate Server
     server.quit()
