@@ -16,6 +16,7 @@ studentY_coordinate = 660
 # Coordinates for Director Name positioning, depends on certificate structure
 directorX_coordinate = 150
 directorY_coordinate = 1120
+directorName = "Dr. Hammad Naveed"
 
 # Sender Credentials
 SenderEmail = "ummarikram@gmail.com"
@@ -69,7 +70,7 @@ def certificate_gen(student_list):
     # Authenticate
     server.login(SenderEmail, SenderPassword)
 
-    for [name, email] in student_list:
+    for [studentName, studentEmail] in student_list:
 
         template=cv2.imread('certificate.png')
         template_conv = cv2.cvtColor(template,cv2.COLOR_BGR2RGB)
@@ -80,15 +81,15 @@ def certificate_gen(student_list):
         
         # sofia_regular = ImageFont.truetype("fonts/Sofia-Regular.otf", 20) # CAN IMPLEMENT MORE THAN ONE FONT
        
-        var_draw.text((studentX_coordinate,studentY_coordinate),name,font=student_pacifico,fill='grey') # DEFINING CO-ORDS NAME AND FONT-COLOR
-        var_draw.text((directorX_coordinate,directorY_coordinate), "Dr. Hammad Naveed",font=director_pacifico,fill='grey')
+        var_draw.text((studentX_coordinate,studentY_coordinate),studentName,font=student_pacifico,fill='grey') # DEFINING CO-ORDS NAME AND FONT-COLOR
+        var_draw.text((directorX_coordinate,directorY_coordinate), directorName,font=director_pacifico,fill='grey')
 
         final_res=cv2.cvtColor(np.array(arr_img),cv2.COLOR_RGB2BGR) # RE-CONVERTING IMAGE FROM ARRAY INFO
-        cv2.imwrite(os.path.join(folderName, "{}.png".format(name)), final_res) # TO SAVE THE FINAL OUTPUT
-        print("{}'s certificate generated!".format(name))
+        cv2.imwrite(os.path.join(folderName, "{}.png".format(studentName)), final_res) # TO SAVE THE FINAL OUTPUT
+        print("{}'s certificate generated!".format(studentName))
 
-        SendMail(os.path.join(folderName, "{}.png".format(name)), name, email)
-        print("Email sent to {}!".format(name))
+        # SendMail(os.path.join(folderName, "{}.png".format(studentName)), studentName, studentEmail)
+        # print("Email sent to {}!".format(studentName))
     
     # Terminate Server
     server.quit()
